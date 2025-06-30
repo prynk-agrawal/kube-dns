@@ -2,7 +2,7 @@
 
 NAMESPACE="default" # Ensure this matches your deployment's namespace
 DEPLOYMENT_NAME="ubuntu-dnspyre-test" # Name of your dnspyre deployment
-CONCURRENCY=2000    # Number of concurrent queries. Adjust as needed to induce load.
+CONCURRENCY=1000    # Number of concurrent queries. Adjust as needed to induce load.
 TEST_DURATION="5m"  # Duration for the load test (e.g., 1m, 5m, 10m)
 LOG_FILE="dnspyre_load_test_results.log"
 
@@ -34,7 +34,7 @@ echo "Results will be logged to $LOG_FILE inside the pod."
 # We use bash -c to run the full command string
 # Note: The `dnspyre` binary is expected to be in the container's PATH.
 # The `/app-services-fqdn.txt` is the path where the file was copied.
-kubectl exec -it "${POD_NAME}" -n "${NAMESPACE}" -- bash -c "PATH=\"\$PATH:/root/go/bin/\" dnspyre -s \"${KUBE_DNS_IP}\" @/app-services-fqdn.txt -c ${CONCURRENCY} --duration=${TEST_DURATION} --log-requests --log-requests-path \"${LOG_FILE}\"" || { echo "ERROR: dnspyre command failed inside the pod."; exit 1; }
+kubectl exec -it "${POD_NAME}" -n "${NAMESPACE}" -- bash -c "PATH=\"\$PATH:/root/go/bin/\" dnspyre -s \"${KUBE_DNS_IP}\" @/app-services-fqdn.txt -c ${CONCURRENCY} --duration=${TEST_DURATION} --log-requests --log-requests-path \"${LOG_FILE}\" --disable-caching" || { echo "ERROR: dnspyre command failed inside the pod."; exit 1; }
 
 echo "--- DNS Load Generation Complete ---"
 echo "Results are saved in '/$LOG_FILE' inside pod '$POD_NAME'."
