@@ -5,7 +5,7 @@ DEPLOYMENT_NAME="dnspyre-test-runner" # Changed name to reflect the image
 CONTAINER_NAME="dnspyre-container"
 NAMESPACE="default" # Ensure this matches the namespace where your services are created
 REPLICAS=2          # Number of replicas
-CPU_REQUEST="500m"  # 0.5 CPU core
+CPU_REQUEST="100m"  # 0.5 CPU core
 MEM_REQUEST="1Gi"   # 1 Gigabyte
 
 echo "--- Creating Deployment '$DEPLOYMENT_NAME' with $REPLICAS replicas using dnspyre image ---"
