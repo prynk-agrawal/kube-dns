@@ -1,83 +1,85 @@
 #!/bin/bash
 
 # --- Configuration ---
-NUM_SERVICES=500
-NAMESPACE="default" # Change this if you want to create resources in a different namespace
-TEMP_YAML_FILE="/tmp/dns-test-resources.yaml"
-FQDN_LIST_FILE="internal-dns-names.txt"
-BASE_SERVICE_NAME="test-svc-" # Base name for your services and deployments
+NUM_SERVICES=200       # The total number of Deployments and Services to create
+NAMESPACE="default"    # The Kubernetes namespace where resources will be created
+BASE_SERVICE_NAME="app-svc" # Base name for your services (e.g., app-svc-001)
+FQDN_LIST_FILE="app-services-fqdn.txt" # File to store the generated FQDNs
 
-# --- Script Start ---
-echo "Starting creation of $NUM_SERVICES services and deployments in namespace '$NAMESPACE'..."
+echo "--- Preparing to create $NUM_SERVICES Deployments and Services directly ---"
+echo "Resources will be created in namespace: $NAMESPACE"
+echo "Note: This method performs individual kubectl apply calls and might be slower."
 
-# Clear previous FQDN list file and temporary YAML file
+# Clear previous FQDN list file if it exists
 > "$FQDN_LIST_FILE"
-> "$TEMP_YAML_FILE"
 
-# Loop to generate YAML content and FQDN list
+# --- Loop to create resources directly ---
 for i in $(seq 1 $NUM_SERVICES); do
-  SERVICE_NAME="${BASE_SERVICE_NAME}$i"
-  # Using a slightly different name for deployment to avoid potential conflicts if base_service_name is reused
-  DEPLOYMENT_NAME="${BASE_SERVICE_NAME}dep-$i" 
+  # Pad the number with leading zeros for consistent naming (e.g., 001, 010, 100)
+  SVC_NUMBER=$(printf "%03d" "$i")
+  SERVICE_NAME="${BASE_SERVICE_NAME}-${SVC_NUMBER}"
+  DEPLOYMENT_NAME="${BASE_SERVICE_NAME}-dep-${SVC_NUMBER}"
 
-  # Append Deployment YAML to the temporary file
-  cat <<EOF >> "$TEMP_YAML_FILE"
+  echo "Creating Deployment '$DEPLOYMENT_NAME' and Service '$SERVICE_NAME'..."
+
+  # Create Deployment directly by piping YAML to kubectl apply
+  kubectl apply -f - <<EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: $DEPLOYMENT_NAME
-  namespace: $NAMESPACE
+  name: "$DEPLOYMENT_NAME"
+  namespace: "$NAMESPACE"
   labels:
-    app: $SERVICE_NAME # Service will select based on this label
+    app: "$SERVICE_NAME"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: $SERVICE_NAME
+      app: "$SERVICE_NAME"
   template:
     metadata:
       labels:
-        app: $SERVICE_NAME
+        app: "$SERVICE_NAME"
     spec:
       containers:
       - name: nginx
-        image: nginx:alpine # A small, lightweight image
+        image: nginx:alpine
         ports:
         - containerPort: 80
----
+EOF
+
+  # Create Service directly by piping YAML to kubectl apply
+  kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Service
 metadata:
-  name: $SERVICE_NAME
-  namespace: $NAMESPACE
+  name: "$SERVICE_NAME"
+  namespace: "$NAMESPACE"
 spec:
   selector:
-    app: $SERVICE_NAME # Selector matches deployment's label
+    app: "$SERVICE_NAME"
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
-  type: ClusterIP # Standard service type for internal communication
+  type: ClusterIP
 EOF
 
-  # Append the Fully Qualified Domain Name (FQDN) to the list file
-  echo "$SERVICE_NAME.$NAMESPACE.svc.cluster.local" >> "$FQDN_LIST_FILE"
+  # Append the FQDN to the list file
+  echo "${SERVICE_NAME}.${NAMESPACE}.svc.cluster.local" >> "$FQDN_LIST_FILE"
 done
 
-echo "Generated YAML manifests for $NUM_SERVICES resources in '$TEMP_YAML_FILE'."
-echo "Generated list of FQDNs in '$FQDN_LIST_FILE'."
-
-# Apply all resources at once for efficiency
-echo "Applying resources to Kubernetes cluster using 'kubectl apply'. This might take a while..."
-kubectl apply -f "$TEMP_YAML_FILE"
-echo "Resource application complete."
+echo "--- Resource creation initiated ---"
+echo "Successfully created $NUM_SERVICES Deployments and Services."
+echo "Generated '$FQDN_LIST_FILE' with FQDNs for $NUM_SERVICES services."
 
 echo ""
-echo "You can now use '$FQDN_LIST_FILE' for your DNS testing with tools like dnspyre."
-echo ""
-echo "--- IMPORTANT: CLEANUP COMMANDS ---"
-echo "To delete all $NUM_SERVICES Deployments and Services created by this script, run:"
-echo "for i in \$(seq 1 $NUM_SERVICES); do kubectl delete deployment ${BASE_SERVICE_NAME}dep-\$i -n $NAMESPACE; kubectl delete service ${BASE_SERVICE_NAME}\$i -n $NAMESPACE; done"
-echo "Then, to clean up the local files created by this script, run:"
-echo "rm -f $TEMP_YAML_FILE $FQDN_LIST_FILE"
+echo "--- Cleanup Commands (IMPORTANT!) ---"
+echo "To delete all created Deployments and Services:"
+echo "for i in \$(seq 1 $NUM_SERVICES); do \\"
+echo "  SVC_NUMBER=\$(printf \"%03d\" \"\$i\"); \\"
+echo "  kubectl delete deployment \"${BASE_SERVICE_NAME}-dep-\${SVC_NUMBER}\" -n \"$NAMESPACE\" --ignore-not-found=true; \\"
+echo "  kubectl delete service \"${BASE_SERVICE_NAME}-\${SVC_NUMBER}\" -n \"$NAMESPACE\" --ignore-not-found=true; \\"
+echo "done"
+echo "To remove the local FQDN list file: rm \"$FQDN_LIST_FILE\""
 echo "-----------------------------------"
