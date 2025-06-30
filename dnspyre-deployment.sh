@@ -63,16 +63,16 @@ for POD_NAME in $POD_NAMES; do
 
     # Removed the dnspyre installation steps as it's now in the image
 
-    echo "--- Copying 'internal-dns-names.txt' into pod '$POD_NAME' ---"
+    echo "--- Copying 'app-services-fqdn.txt' into pod '$POD_NAME' ---"
     # Copy the file from your local machine (where this script is running) into the pod
-    # Assumes 'internal-dns-names.txt' is in the current directory on your local machine
-    kubectl cp internal-dns-names.txt "${NAMESPACE}/${POD_NAME}:/internal-dns-names.txt" || { echo "WARNING: Failed to copy internal-dns-names.txt to pod '$POD_NAME'. Continuing with next pod."; continue; } # Use continue
+    # Assumes 'app-services-fqdn.txt' is in the current directory on your local machine
+    kubectl cp app-services-fqdn.txt "${NAMESPACE}/${POD_NAME}:/internal-dns-names.txt" || { echo "WARNING: Failed to copy app-services-fqdn.txt to pod '$POD_NAME'. Continuing with next pod."; continue; } # Use continue
 
 done
 
 echo "------------------------------------------------------------------"
 echo "Deployment '$DEPLOYMENT_NAME' with $REPLICAS replicas is ready using dnspyre image."
-echo "File '/internal-dns-names.txt' has been copied to all active pods."
+echo "File '/app-services-fqdn.txt' has been copied to all active pods."
 echo "You can now attach to any of the pods to run tests: "
 echo "kubectl attach -it $(echo $POD_NAMES | awk '{print $1}') -n ${NAMESPACE}"
 echo "Or list pods to pick one: kubectl get pods -l app=${DEPLOYMENT_NAME} -n ${NAMESPACE}"
