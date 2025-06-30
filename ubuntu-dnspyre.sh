@@ -5,7 +5,7 @@ DEPLOYMENT_NAME="ubuntu-dnspyre-test"
 CONTAINER_NAME="ubuntu-dnspyre-container"
 NAMESPACE="default" # Ensure this matches the namespace where your services are created
 CPU_REQUEST="500m"  # 0.5 CPU core
-MEM_REQUEST="1Gi"   # 1 Gigabyte
+MEM_REQUEST="2Gi"   # 1 Gigabyte
 
 # --- IMPORTANT: Align with the FQDN_LIST_FILE from the previous script ---
 FQDN_LIST_FILE="app-services-fqdn.txt" # This must match the output file from the service creation script
