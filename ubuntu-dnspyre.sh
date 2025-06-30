@@ -4,7 +4,7 @@
 DEPLOYMENT_NAME="ubuntu-dnspyre-test"
 CONTAINER_NAME="ubuntu-dnspyre-container"
 NAMESPACE="default" # Ensure this matches the namespace where your services are created
-CPU_REQUEST="800m"  # 0.5 CPU core
+CPU_REQUEST="1000m"  # 0.5 CPU core
 MEM_REQUEST="2Gi"   # 1 Gigabyte
 
 # --- IMPORTANT: Align with the FQDN_LIST_FILE from the previous script ---
