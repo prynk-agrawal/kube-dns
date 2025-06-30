@@ -34,9 +34,7 @@ echo "Results will be logged to $LOG_FILE inside the pod."
 # We use bash -c to run the full command string
 # Note: The `dnspyre` binary is expected to be in the container's PATH.
 # The `/app-services-fqdn.txt` is the path where the file was copied.
-kubectl exec -it "${POD_NAME}" -n "${NAMESPACE}" -- bash -c " \
-    dnspyre -s \"${KUBE_DNS_IP}\" @/app-services-fqdn.txt -c ${CONCURRENCY} --duration=${TEST_DURATION} --log-requests --log-requests-path \"${LOG_FILE}\" \
-" || { echo "ERROR: dnspyre command failed inside the pod."; exit 1; }
+kubectl exec -it "${POD_NAME}" -n "${NAMESPACE}" -- bash -c "PATH=\"\$PATH:/root/go/bin/\" dnspyre -s \"${KUBE_DNS_IP}\" @/app-services-fqdn.txt -c ${CONCURRENCY} --duration=${TEST_DURATION} --log-requests --log-requests-path \"${LOG_FILE}\"" || { echo "ERROR: dnspyre command failed inside the pod."; exit 1; }
 
 echo "--- DNS Load Generation Complete ---"
 echo "Results are saved in '/$LOG_FILE' inside pod '$POD_NAME'."
