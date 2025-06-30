@@ -1,7 +1,7 @@
 #!/bin/bash
 
 NAMESPACE="default" # Ensure this matches your deployment's namespace
-DEPLOYMENT_NAME="dnspyre-test-runner" # Name of your dnspyre deployment
+DEPLOYMENT_NAME="ubuntu-dnspyre-test" # Name of your dnspyre deployment
 CONCURRENCY=2000    # Number of concurrent queries. Adjust as needed to induce load.
 TEST_DURATION="5m"  # Duration for the load test (e.g., 1m, 5m, 10m)
 LOG_FILE="dnspyre_load_test_results.log"
