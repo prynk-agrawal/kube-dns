@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # --- Configuration ---
-NUM_SERVICES=200       # The total number of Deployments and Services to create
+NUM_SERVICES=160       # The total number of Deployments and Services to create
 NAMESPACE="default"    # The Kubernetes namespace where resources will be created
 BASE_DEPLOYMENT_NAME="app-dep" # Base name for your deployments (e.g., app-dep-001)
 BASE_SERVICE_NAME="app-svc" # Base name for your services (e.g., app-svc-001)
