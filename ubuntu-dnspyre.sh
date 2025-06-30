@@ -7,6 +7,9 @@ NAMESPACE="default" # Ensure this matches the namespace where your services are 
 CPU_REQUEST="500m"  # 0.5 CPU core
 MEM_REQUEST="1Gi"   # 1 Gigabyte
 
+# --- IMPORTANT: Align with the FQDN_LIST_FILE from the previous script ---
+FQDN_LIST_FILE="app-services-fqdn.txt" # This must match the output file from the service creation script
+
 echo "--- Creating Ubuntu Deployment '$DEPLOYMENT_NAME' ---"
 
 # Create the Deployment YAML and apply it
@@ -69,15 +72,15 @@ kubectl exec -it "${POD_NAME}" -n "${NAMESPACE}" -- bash -c " \
     echo 'dnspyre installation complete and PATH updated.' \
 " || { echo "Failed to install dnspyre in pod."; exit 1; }
 
-echo "--- Copying 'internal-dns-names.txt' into pod '$POD_NAME' ---"
-# Copy the file from your local machine (where this script runs) into the pod
-# Assumes 'internal-dns-names.txt' is in the current directory on your local machine
-kubectl cp internal-dns-names.txt "${NAMESPACE}/${POD_NAME}:/internal-dns-names.txt" || { echo "Failed to copy internal-dns-names.txt."; exit 1; }
+echo "--- Copying '${FQDN_LIST_FILE}' into pod '$POD_NAME' ---"
+# Copy the FQDN list file from your local machine (where this script runs) into the pod
+# Assumes the FQDN_LIST_FILE is in the current directory on your local machine
+kubectl cp "${FQDN_LIST_FILE}" "${NAMESPACE}/${POD_NAME}:/${FQDN_LIST_FILE}" || { echo "Failed to copy ${FQDN_LIST_FILE}."; exit 1; }
 
 echo "------------------------------------------------------------------"
 echo "Ubuntu Deployment '$DEPLOYMENT_NAME' is ready."
 echo "dnspyre is installed in pod '$POD_NAME'."
-echo "File '/internal-dns-names.txt' has been copied to pod '$POD_NAME'."
+echo "File '/${FQDN_LIST_FILE}' has been copied to pod '$POD_NAME'."
 echo "You can now attach to the pod to run tests: "
 echo "kubectl attach -it ${POD_NAME} -n ${NAMESPACE}"
 echo "------------------------------------------------------------------"
