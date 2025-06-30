@@ -3,6 +3,7 @@
 # --- Configuration ---
 NUM_SERVICES=200       # The total number of Deployments and Services to create
 NAMESPACE="default"    # The Kubernetes namespace where resources will be created
+BASE_DEPLOYMENT_NAME="app-dep" # Base name for your deployments (e.g., app-dep-001)
 BASE_SERVICE_NAME="app-svc" # Base name for your services (e.g., app-svc-001)
 FQDN_LIST_FILE="app-services-fqdn.txt" # File to store the generated FQDNs
 
@@ -18,7 +19,7 @@ for i in $(seq 1 $NUM_SERVICES); do
   # Pad the number with leading zeros for consistent naming (e.g., 001, 010, 100)
   SVC_NUMBER=$(printf "%03d" "$i")
   SERVICE_NAME="${BASE_SERVICE_NAME}-${SVC_NUMBER}"
-  DEPLOYMENT_NAME="${BASE_SERVICE_NAME}-dep-${SVC_NUMBER}"
+  DEPLOYMENT_NAME="${BASE_DEPLOYMENT_NAME}-dep-${SVC_NUMBER}"
 
   echo "Creating Deployment '$DEPLOYMENT_NAME' and Service '$SERVICE_NAME'..."
 
